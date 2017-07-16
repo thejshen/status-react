@@ -95,3 +95,17 @@
 
 (defn hash-tag? [s]
   (= \# (first s)))
+
+(defn default-alert-handler
+  [error fatal?]
+  (show-popup "Error" (.-message error)))
+
+(defn register-exception-handler
+  "Register a function that will be called for each exception thrown.
+   When `dev?` is true, always register; otherwise only register when goog.DEBUG is false.
+   Default function shows error details in an alert box."
+  ([] (register-exception-handler default-alert-handler))
+  ([f] (register-exception-handler true f))
+  ([dev? f]
+   (if (or dev? (not js/goog.DEBUG))
+     (.setGlobalHandler js/ErrorUtils f dev?))))
