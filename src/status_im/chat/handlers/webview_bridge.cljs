@@ -7,7 +7,7 @@
             [taoensso.timbre :as log]
             [status-im.models.commands :as commands]
             [status-im.commands.utils :as cu]
-            [status-im.contacts.validations :as v]
+            [status-im.contacts.db :as v]
             [status-im.components.status :as s]
             [status-im.components.nfc :as nfc]
             [status-im.constants :as c]

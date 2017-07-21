@@ -11,7 +11,7 @@
     status-im.chat.handlers
     status-im.group-settings.handlers
     status-im.navigation.handlers
-    status-im.contacts.handlers
+    status-im.contacts.events
     status-im.discover.handlers
     status-im.new-group.handlers
     status-im.profile.handlers

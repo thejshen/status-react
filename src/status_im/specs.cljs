@@ -3,7 +3,7 @@
   (:require [cljs.spec.alpha :as s]
             [status-im.accounts.specs]
             [status-im.navigation.specs]
-            [status-im.contacts.specs]
+            [status-im.contacts.db]
             [status-im.qr-scanner.specs]
             [status-im.new-group.specs]
             [status-im.chat.specs]
