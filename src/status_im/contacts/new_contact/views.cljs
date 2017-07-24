@@ -31,10 +31,10 @@
       (normalize-hex whisper-identity))
     (label :t/can-not-add-yourself)
 
-    (not (s/valid? ::v/whisper-identity whisper-identity))
+    (not (s/valid? ::v/public-key whisper-identity))
     (label :t/enter-valid-public-key)
 
-    (not (s/valid? ::v/contact-can-be-added whisper-identity))
+    (not (v/contact-can-be-added? whisper-identity))
     (label :t/contact-already-added)
 
     :else error))
@@ -61,7 +61,7 @@
          :wrapper-style  button-input
          :label          (label :t/public-key)
          :on-change-text #(do
-                            (dispatch [:set-in [:new-contact-identity] %])
+                            (dispatch [:set :new-contact-identity %])
                             (dispatch [:set :new-contact-public-key-error nil]))}]
        [scan-button {:show-label? (zero? (count whisper-identity))
                      :handler     #(dispatch [:scan-qr-code
