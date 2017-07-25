@@ -5,7 +5,7 @@ function calculateFee(n, tx) {
     }
 
     var gasMultiplicator = Math.pow(1.4, n).toFixed(3);
-    return web3.fromWei(web3.eth.gasPrice * gasMultiplicator * estimatedGas, "ether");
+    return parseFloat(web3.fromWei(web3.eth.gasPrice * gasMultiplicator * estimatedGas, "ether")).toFixed(7);
 }
 
 function calculateGasPrice(n) {
