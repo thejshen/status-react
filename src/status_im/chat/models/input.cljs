@@ -25,9 +25,9 @@
 (defn text-ends-with-space?
   "Returns true if the last symbol of `text` is space"
   [text]
-  (when text
-    (= (str/last-index-of text const/spacing-char)
-       (dec (count text)))))
+  (and (not (nil? text))
+       (= (str/last-index-of text const/spacing-char)
+          (dec (count text)))))
 
 (defn starts-as-command?
   "Returns true if `text` may be treated as a command.
@@ -71,30 +71,31 @@
 
   All the complex logic inside this function aims to support wrapped arguments."
   [command-text]
-  (let [space?                  (text-ends-with-space? command-text)
-        command-text            (if space?
-                                  (str command-text ".")
-                                  command-text)
-        command-text-normalized (if command-text
-                                  (str/replace (str/trim command-text) #" +" " ")
-                                  command-text)
-        splitted                (cond-> (str/split command-text-normalized const/spacing-char)
-                                        space? (drop-last))]
-    (->> splitted
-         (reduce (fn [[list command-started?] arg]
-                   (let [quotes-count       (count (filter #(= % const/arg-wrapping-char) arg))
-                         has-quote?         (and (= quotes-count 1)
-                                                 (str/index-of arg const/arg-wrapping-char))
-                         arg                (str/replace arg (re-pattern const/arg-wrapping-char) "")
-                         new-list           (if command-started?
-                                              (let [index (dec (count list))]
-                                                (update list index str const/spacing-char arg))
-                                              (conj list arg))
-                         command-continues? (or (and command-started? (not has-quote?))
-                                                (and (not command-started?) has-quote?))]
-                     [new-list command-continues?]))
-                 [[] false])
-         (first))))
+  (when command-text
+    (let [space?                  (text-ends-with-space? command-text)
+          command-text            (if space?
+                                    (str command-text ".")
+                                    command-text)
+          command-text-normalized (if command-text
+                                    (str/replace (str/trim command-text) #" +" " ")
+                                    command-text)
+          splitted                (cond-> (str/split command-text-normalized const/spacing-char)
+                                          space? (drop-last))]
+      (->> splitted
+           (reduce (fn [[list command-started?] arg]
+                     (let [quotes-count       (count (filter #(= % const/arg-wrapping-char) arg))
+                           has-quote?         (and (= quotes-count 1)
+                                                   (str/index-of arg const/arg-wrapping-char))
+                           arg                (str/replace arg (re-pattern const/arg-wrapping-char) "")
+                           new-list           (if command-started?
+                                                (let [index (dec (count list))]
+                                                  (update list index str const/spacing-char arg))
+                                                (conj list arg))
+                           command-continues? (or (and command-started? (not has-quote?))
+                                                  (and (not command-started?) has-quote?))]
+                       [new-list command-continues?]))
+                   [[] false])
+           (first)))))
 
 (defn join-command-args [args]
   "Transforms a list of args to a string. The opposite of `split-command-args`.
@@ -108,13 +109,14 @@
 
   Input:  ['/send' 'Complex name with space in between' '1.0']
   Output: '/send \"Complex name with space in between\" 1.0'"
-  (->> args
-       (map (fn [arg]
-              (let [arg (str/replace arg (re-pattern const/arg-wrapping-char) "")]
-                (if (not (str/index-of arg const/spacing-char))
-                  arg
-                  (str const/arg-wrapping-char arg const/arg-wrapping-char)))))
-       (str/join const/spacing-char)))
+  (when args
+    (->> args
+         (map (fn [arg]
+                (let [arg (str/replace arg (re-pattern const/arg-wrapping-char) "")]
+                  (if (not (str/index-of arg const/spacing-char))
+                    arg
+                    (str const/arg-wrapping-char arg const/arg-wrapping-char)))))
+         (str/join const/spacing-char))))
 
 (defn selected-chat-command
   "Returns a map containing `:command`, `:metadata` and `:args` keys.
@@ -226,6 +228,7 @@
     (->> args
          (map-indexed (fn [i value]
                         [(keyword (get-in params [i :name])) value]))
+         (remove #(nil? (first %)))
          (into {}))))
 
 (defn command-dependent-context-params

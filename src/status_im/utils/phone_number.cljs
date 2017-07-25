@@ -12,6 +12,7 @@
 
 (defn get-examples []
   (when-let [example (.getExample dependencies/awesome-phonenumber country-code "mobile")]
+    (prn example)
     [{:number      (.getNumber example)
       :description (label :t/phone-e164)}
      {:number      (.getNumber example "international")
